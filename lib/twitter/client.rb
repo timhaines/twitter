@@ -79,7 +79,11 @@ module Twitter
 
     def request(method, path, params={}, signature_params=params)
       connection.send(method.to_sym, path, params) do |request|
-        request.headers[:authorization] = auth_header(method.to_sym, path, signature_params).to_s
+        if @bearer_token.present?
+          request.headers[:authorization] =  "Bearer #{@bearer_token}"
+        else
+          request.headers[:authorization] = auth_header(method.to_sym, path, signature_params).to_s
+        end
       end.env
     rescue Faraday::Error::ClientError
       raise Twitter::Error::ClientError
